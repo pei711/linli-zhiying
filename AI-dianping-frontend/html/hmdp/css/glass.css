@@ -1,0 +1,576 @@
+/*
+  Global Modern Glassmorphism & Soft UI for mobile
+  - Core palette and radii
+  - Background blurred gradient blobs
+  - Main floating card: #app
+  - Soft inputs, buttons, segments, and lists
+  - Non-intrusive: only CSS overrides; no structural changes
+*/
+
+:root {
+  --bg-base: #d6d1cb; /* warm grey base */
+  --card-bg: rgba(255, 255, 255, 0.25);
+  --card-border: rgba(255, 255, 255, 0.35);
+  --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  --inner-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  --accent: #22272b; /* high-contrast accent */
+  --accent-weak: rgba(34, 39, 43, 0.65);
+  --text-strong: #1f2d3d;
+  --text-weak: rgba(31, 45, 61, 0.75);
+  --radius-xl: 24px;
+  --radius-lg: 18px;
+  --radius-md: 14px;
+  --radius-sm: 12px;
+}
+
+html,
+body {
+  background: var(--bg-base);
+  color: var(--text-strong);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Decorative blurred gradient blobs */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  z-index: -2;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.55;
+}
+body::before {
+  width: 380px;
+  height: 380px;
+  left: -120px;
+  top: -80px;
+  background: radial-gradient(
+    closest-side,
+    rgba(255, 153, 102, 0.7),
+    rgba(255, 102, 102, 0.35) 60%,
+    transparent 70%
+  );
+}
+body::after {
+  width: 420px;
+  height: 420px;
+  right: -140px;
+  bottom: -100px;
+  background: radial-gradient(
+    closest-side,
+    rgba(102, 204, 255, 0.6),
+    rgba(153, 204, 204, 0.35) 60%,
+    transparent 70%
+  );
+}
+
+/* Main floating card container */
+#app {
+  box-sizing: border-box;
+  position: relative;
+  min-height: 100vh;
+  max-width: 480px; /* phone-first */
+  width: calc(100% - 24px); /* keep 12px gutter on both sides */
+  margin: 0 auto;
+  padding: 12px 12px calc(72px + env(safe-area-inset-bottom, 0px));
+  background: var(--card-bg);
+  -webkit-backdrop-filter: blur(25px) saturate(1.2);
+  backdrop-filter: blur(25px) saturate(1.2);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--glass-shadow);
+  overflow: hidden;
+}
+
+/* Make inner sections feel like segments floating within the card */
+.search-bar,
+.sort-bar,
+.top-bar,
+.shop-info-box,
+.shop-comments,
+.shop-voucher,
+.content,
+.login-form,
+.comment-list {
+  background: rgba(255, 255, 255, 0.2) !important;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* Header bars unify */
+.header {
+  background: rgba(255, 255, 255, 0.2) !important;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border-bottom: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--radius-lg);
+  margin-bottom: 10px;
+}
+.header-title {
+  color: var(--text-strong);
+}
+.header-back-btn {
+  color: var(--accent-weak);
+}
+
+/* Search bar tuning for glass */
+.search-bar {
+  color: var(--text-strong);
+  height: auto; /* allow content-driven height */
+  padding: 10px;
+  gap: 10px;
+}
+.search-input el-input,
+.search-input .el-input__inner {
+  width: 100%;
+}
+.city-btn {
+  background: rgba(255, 255, 255, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+.header-icon {
+  color: var(--accent-weak);
+}
+
+/* Lists and cards - 玻璃拟态设计 - 紧凑版 */
+.type-list {
+  /* 玻璃拟态效果 - 轻盈通透有层次 */
+  background: rgba(255, 255, 255, 0.25) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(1.3);
+  backdrop-filter: blur(20px) saturate(1.3);
+
+  /* 柔和边框 - 增强轮廓感 */
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+
+  /* 柔和阴影 - 营造悬浮感 - 改为黑色 */
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1), 0 2px 6px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+
+  /* 超大圆角 - 柔软现代 */
+  border-radius: var(--radius-lg) !important;
+
+  /* 布局设置 - 确保内容不超出 */
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: space-around !important;
+  align-content: flex-start !important;
+
+  /* 关键修复：不使用固定高度，让内容自适应 */
+  height: auto !important;
+  min-height: fit-content !important;
+
+  /* 间距布局 - 缩小间距和内边距 */
+  padding: 12px 10px 14px !important;
+  gap: 8px 8px !important;
+  margin: 10px 0 10px !important;
+
+  /* 确保盒模型正确计算 */
+  box-sizing: border-box !important;
+}
+
+.type-box {
+  /* 玻璃拟态卡片 */
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+
+  /* 固定宽度，确保一行4个 - 缩小尺寸 */
+  width: 22% !important;
+  flex-shrink: 0;
+
+  /* 细微阴影增加立体感 */
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+
+  /* 缩小内边距 */
+  padding: 6px 4px;
+
+  /* 内嵌感 */
+  position: relative;
+  overflow: hidden;
+
+  /* 确保居中对齐 */
+  text-align: center;
+  box-sizing: border-box;
+}
+
+/* 为type-box添加微妙的光泽效果 */
+.type-box::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.4) 0%,
+    transparent 100%
+  );
+  pointer-events: none;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+/* 缩小图片和文字 */
+.type-view {
+  width: 100%;
+  padding: 0;
+}
+
+.type-view img {
+  border-radius: var(--radius-sm);
+  width: 100%;
+  height: auto;
+}
+
+.type-text {
+  color: var(--text-strong) !important;
+  font-size: 10px !important;
+  margin-top: 4px !important;
+  margin-bottom: 2px !important;
+  line-height: 1.2;
+}
+/* Only show first 2 rows (commonly 5 columns -> show first 10 items) */
+.type-list .type-box:nth-child(n + 11) {
+  display: none;
+}
+
+.blog-list {
+  /* 玻璃拟态效果 - 增强模糊 */
+  background: rgba(255, 255, 255, 0.25);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  backdrop-filter: blur(20px) saturate(1.2);
+
+  /* 柔和边框 */
+  border: 1px solid rgba(255, 255, 255, 0.35);
+
+  /* 柔和阴影 - 营造悬浮感 */
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+
+  /* 超大圆角 */
+  border-radius: var(--radius-xl);
+
+  overflow: hidden;
+  overflow-y: auto;
+
+  /* 布局调整 - 解决与footer重叠问题 */
+  margin: 6px 0 0;
+
+  /* 底部内边距计算：footer高度(64px) + footer底部距离(16px) + 额外安全距离(30px) = 110px */
+  padding: 14px 10px 110px;
+
+  /* 基础样式 */
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+
+  /* 关键修复：恢复固定高度以支持滚动 */
+  height: 60% !important;
+  box-sizing: border-box;
+}
+.blog-box {
+  background: rgba(255, 255, 255, 0.18) !important;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: var(--radius-lg) !important;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* clip rounded corners */
+}
+.blog-img {
+  width: 100%;
+  aspect-ratio: 1 / 1; /* square */
+  overflow: hidden;
+}
+.blog-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 20px !important; /* make image more rounded */
+}
+
+/* Fallback if aspect-ratio is not supported */
+@supports not (aspect-ratio: 1 / 1) {
+  .blog-img {
+    height: min(44vw, 320px);
+  }
+}
+.blog-title {
+  color: var(--text-strong);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 34px;
+  line-clamp: 2;
+}
+.blog-user-name {
+  color: var(--text-weak);
+}
+.blog-liked {
+  color: var(--accent-weak);
+}
+
+/* Shop list/detail cards */
+.shop-list {
+  background: transparent !important;
+}
+.shop-box {
+  background: rgba(255, 255, 255, 0.35);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+.shop-img img {
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+}
+.shop-title,
+.shop-avg,
+.shop-area,
+.shop-address {
+  color: var(--text-strong);
+}
+
+.shop-divider {
+  border-color: rgba(31, 45, 61, 0.08) !important;
+}
+
+/* Comments */
+.comment-box {
+  background: rgba(255, 255, 255, 0.35);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-lg);
+  padding: 10px;
+}
+.comment-user {
+  color: var(--text-strong);
+}
+
+/* Element-UI inputs: soft inset */
+.el-input__inner {
+  background: rgba(214, 209, 203, 0.6) !important; /* --bg-base with alpha */
+  border: none !important;
+  color: var(--text-strong) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--inner-shadow);
+  transition: box-shadow 0.2s ease, background 0.2s ease, transform 0.08s ease;
+}
+.el-input__inner::placeholder {
+  color: rgba(31, 45, 61, 0.5);
+}
+.el-input__inner:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(34, 39, 43, 0.15), var(--inner-shadow);
+  background: rgba(214, 209, 203, 0.7);
+}
+
+/* Element-UI buttons: accent & soft */
+.el-button {
+  background: var(--accent) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: 0 6px 14px rgba(34, 39, 43, 0.25);
+  transition: transform 0.08s ease, filter 0.15s ease, box-shadow 0.15s ease;
+}
+.el-button:hover {
+  filter: brightness(1.06);
+}
+.el-button:active {
+  transform: scale(0.98);
+}
+.el-button.is-disabled {
+  filter: grayscale(0.2) brightness(0.95);
+  box-shadow: none;
+}
+
+/* Tag/label chips */
+.tag {
+  background: rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-md);
+}
+
+/* Footer bar as glass (tinted) */
+.foot {
+  position: fixed !important;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 480px;
+  width: calc(100% - 24px);
+  box-sizing: border-box;
+
+  /* 玻璃拟态效果 */
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.38),
+    rgba(255, 255, 255, 0.22)
+  );
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+
+  /* 边框和圆角 */
+  border: none;
+  border-radius: var(--radius-lg);
+
+  /* 关键修复：增加底部距离，防止遮挡内容 */
+  bottom: 16px !important;
+
+  /* 设置固定高度 */
+  height: 64px !important;
+
+  /* 阴影效果 */
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.12);
+
+  /* 层级 */
+  z-index: 1000;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+
+  /* 布局 */
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+.foot .foot-box {
+  color: #5c6166;
+}
+.foot .add-btn {
+  border-radius: var(--radius-lg);
+}
+.active {
+  color: #131313 !important;
+}
+
+/* Interactions: 柔光反馈 & 现代交互 */
+.type-box,
+.blog-box,
+.shop-box,
+.foot .foot-box {
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+}
+
+/* type-box 鼠标悬停 - 柔光反馈效果 */
+.type-box:hover {
+  transform: translateY(-4px) scale(1.08) !important;
+
+  /* 高级玻璃效果 - 更通透 */
+  background: rgba(255, 255, 255, 0.5) !important;
+  border-color: rgba(255, 102, 51, 0.4) !important;
+
+  /* 柔和光晕 - 黑色反馈 */
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.15), 0 8px 28px rgba(0, 0, 0, 0.25),
+    0 4px 12px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+
+  z-index: 10;
+}
+
+/* type-box 点击效果 - 轻微缩放 */
+.type-box:active {
+  transform: translateY(-2px) scale(1.02) !important;
+  transition-duration: 0.1s;
+}
+
+.blog-box:hover,
+.foot .foot-box:hover {
+  filter: brightness(1.05);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.blog-box:active,
+.foot .foot-box:active {
+  transform: scale(0.98);
+}
+
+/* shop-box 鼠标悬停 - 黑色发光边框效果 */
+.shop-box:hover {
+  transform: translateY(-3px);
+  border-color: rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.2), 0 10px 25px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+}
+
+.shop-box:active {
+  transform: translateY(-1px) scale(0.99);
+}
+
+/* Login page: request-specific colors */
+.login-container .el-button--success {
+  /* 发送验证码按钮 */
+  background: var(--accent) !important;
+  color: #ffffff !important;
+}
+.login-container .login-form > .el-button:not(.el-button--success) {
+  /* 登录按钮 */
+  background: #000 !important;
+  color: #ffffff !important; /* <--- 就是把这里改成 #FFFFFF 喵 */
+  border: none !important;
+}
+
+/* Fine-tune titles and texts */
+h1,
+h2,
+h3,
+h4,
+h5 {
+  color: var(--text-strong);
+}
+p,
+span,
+small,
+li,
+a {
+  color: var(--text-weak);
+}
+a {
+  text-decoration: none;
+}
+
+/* Smooth scrolling for scrollable lists */
+.blog-list,
+.shop-list,
+.comment-list {
+  scroll-behavior: smooth;
+}
+
+/* Images rounding consistency */
+img {
+  border-radius: var(--radius-sm);
+}
+
+/* Utility: subtle divider */
+.divider {
+  height: 1px;
+  background: rgba(31, 45, 61, 0.08);
+}
+
+/* Prevent double overflow on the main card */
+html,
+body {
+  overflow-x: hidden;
+}
+/* 终极修正：强制按钮内文字为白色！ */
+.login-container .el-button span {
+  color: #ffffff !important;
+}

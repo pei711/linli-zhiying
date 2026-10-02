@@ -1,0 +1,853 @@
+/* ========== 玻璃拟态风格 (Modern Glassmorphism) ========== */
+
+/* 全局重置和基础样式 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden; /* 禁止body层级的滚动 */
+}
+
+/* 页面背景：固定的装饰性背景 */
+body {
+  background: #f5f5f5;
+  position: relative;
+}
+
+/* 装饰性渐变光球背景 - 固定在背景层 */
+body::before,
+body::after {
+  content: "";
+  position: fixed; /* 改回fixed，背景不滚动 */
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.3;
+  z-index: 0;
+  pointer-events: none;
+}
+
+body::before {
+  width: 500px;
+  height: 500px;
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  top: 0;
+  right: -150px;
+}
+
+body::after {
+  width: 450px;
+  height: 450px;
+  background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+  top: 600px;
+  left: -150px;
+}
+
+/* 主容器：可滚动容器 */
+#app {
+  position: relative;
+  z-index: 1;
+  height: 100vh; /* 占满整个视口高度 */
+  overflow-x: hidden;
+  overflow-y: auto; /* 允许垂直滚动 */
+  -webkit-overflow-scrolling: touch; /* iOS平滑滚动 */
+  padding-bottom: 40px;
+}
+
+/* 自定义滚动条样式 */
+#app::-webkit-scrollbar {
+  width: 6px;
+}
+
+#app::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#app::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+#app::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* 头部：玻璃拟态效果 - 参照图片的简洁设计 */
+.header {
+  background: rgba(255, 255, 255, 0.95); /* 更高不透明度，更接近参考图 */
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: none;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
+  width: 95%;
+  max-width: 680px;
+  line-height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 500;
+  padding: 14px 18px;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+}
+
+/* 头部返回按钮 */
+.header-back-btn {
+  width: auto;
+  min-width: 40px;
+  color: #22272b;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.header-back-btn:hover {
+  transform: scale(1.1);
+}
+
+/* 头部标题 */
+.header-title {
+  flex: 1;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 600;
+  color: #22272b;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+}
+
+/* 头部分享按钮 */
+.header-share {
+  width: auto;
+  min-width: 40px;
+  text-align: center;
+  font-size: 20px;
+  color: #22272b;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.header-share:hover {
+  transform: scale(1.1);
+}
+
+/* 主内容卡片：参照图片的白色卡片设计 */
+.shop-info-box,
+.shop-voucher,
+.shop-comments {
+  background: #ffffff; /* 纯白背景，更接近参考图 */
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  margin: 70px auto 12px auto;
+  max-width: 680px;
+  width: 95%;
+  padding: 20px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.shop-info-box:hover,
+.shop-voucher:hover,
+.shop-comments:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* 第一个卡片与后续卡片间距 */
+.shop-voucher,
+.shop-comments {
+  margin-top: 12px;
+}
+
+/* 商店信息盒子内边距调整 */
+.shop-info-box {
+  padding: 20px;
+}
+
+/* 商店标题 */
+.shop-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  color: #1a1a1a;
+  letter-spacing: -0.3px;
+}
+
+/* 商店评分区域 */
+.shop-rate {
+  margin: 10px 0;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 12px;
+}
+
+/* 商店评分信息 */
+.shop-rate-info {
+  margin: 8px 0 10px 0;
+  color: #666;
+  font-size: 13px;
+}
+
+/* 商店排名区域 */
+.shop-rank {
+  margin: 12px 0;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background: linear-gradient(135deg, #fff9f0 0%, #fff5e6 100%);
+  padding: 10px 12px;
+  border-radius: 12px;
+  gap: 8px;
+}
+
+/* 商店排名标签 */
+.shop-rank span {
+  color: #d4380d;
+  font-size: 12px;
+  background: linear-gradient(135deg, #fff1e6 0%, #ffe7d1 100%);
+  border: 1px solid #ffcfa8;
+  border-radius: 8px;
+  height: 24px;
+  line-height: 24px;
+  padding: 0 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* 商店排名文字区域 */
+.shop-rank div {
+  color: #333;
+  font-size: 13px;
+  flex: 1;
+  text-align: left;
+  font-weight: 500;
+}
+
+/* 商店图片容器 */
+.shop-images {
+  display: flex;
+  overflow-x: auto;
+  padding: 16px 0;
+  gap: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.shop-images::-webkit-scrollbar {
+  height: 6px;
+}
+
+.shop-images::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.shop-images::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+/* 商店图片 */
+.shop-images img {
+  height: 110px;
+  width: 150px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  border: 1px solid #f0f0f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  object-fit: cover;
+}
+
+.shop-images img:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 商店地址 */
+.shop-address {
+  font-size: 13px;
+  color: #666;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  gap: 8px;
+  border-top: 1px solid #f5f5f5;
+  margin-top: 12px;
+}
+
+.shop-address i {
+  color: #1890ff;
+  font-size: 16px;
+}
+
+/* 商店服务区域 */
+.shop-service {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+}
+
+.shop-service div {
+  display: flex;
+  align-items: center;
+}
+
+/* 营业时间 */
+.shop-open-time {
+  display: flex;
+  align-items: center;
+  padding: 12px 0;
+  font-size: 13px;
+  border-top: 1px solid #f5f5f5;
+  margin-top: 8px;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.shop-open-time span,
+.shop-open-time div {
+  color: #333;
+}
+
+.shop-open-time i {
+  font-size: 16px;
+  color: #1890ff;
+}
+
+/* 右侧箭头 */
+.line-right {
+  flex: 1;
+  color: #5a5b5b;
+  font-size: 13px;
+  text-align: right;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+/* AI启动器按钮 */
+.ai-launcher {
+  position: fixed;
+  right: 16px;
+  bottom: 70px;
+  z-index: 1000;
+}
+
+.ai-launcher-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.ai-launcher-button:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 24px rgba(102, 126, 234, 0.5);
+}
+
+.ai-launcher-button svg {
+  width: 28px;
+  height: 28px;
+}
+
+/* 代金券标题区域 */
+.voucher-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.voucher-title-text {
+  font-weight: 700;
+  font-size: 16px;
+  color: #1a1a1a;
+}
+
+/* 代金券图标 */
+.voucher-icon {
+  display: inline-block;
+  line-height: 18px;
+  background: linear-gradient(135deg, #ff6b35 0%, #ff4d00 100%);
+  color: white;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 12px;
+  box-shadow: 0 2px 6px rgba(255, 107, 53, 0.25);
+}
+
+/* 代金券盒子 */
+.voucher-box {
+  background: linear-gradient(135deg, #fff8f8 0%, #fff5f5 100%);
+  border: 1px solid #ffe8e8;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px;
+  margin: 12px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+}
+
+.voucher-box:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* 代金券圆形装饰 */
+.voucher-circle {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  height: 90px;
+  gap: 8px;
+}
+
+/* 代金券圆点 */
+.voucher-b {
+  height: 10px;
+  width: 10px;
+  background: #fff;
+  border: 2px solid #ffccc7;
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+/* 代金券左侧内容 */
+.voucher-left {
+  flex: 1;
+  margin-left: 20px;
+}
+
+/* 代金券右侧内容 */
+.voucher-right {
+  margin-right: 12px;
+}
+
+/* 代金券文本通用 */
+.voucher-title,
+.voucher-subtitle,
+.voucher-price {
+  padding: 6px 0;
+}
+
+/* 代金券标题 */
+.voucher-title {
+  font-weight: 700;
+  font-size: 15px;
+  color: #1a1a1a;
+}
+
+/* 代金券副标题 */
+.voucher-subtitle {
+  color: #999;
+  font-size: 12px;
+}
+
+/* 代金券价格 */
+.voucher-price {
+  color: #ff4d4f;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 代金券价格数字 */
+.voucher-price div {
+  font-weight: 700;
+  font-size: 18px;
+}
+
+/* 代金券折扣标签 */
+.voucher-price span {
+  font-size: 11px;
+  padding: 2px 6px;
+  background: #fff0f0;
+  border: 1px solid #ffccc7;
+  border-radius: 6px;
+  font-weight: 500;
+  color: #ff4d4f;
+}
+
+/* 代金券按钮 */
+.voucher-btn {
+  background: linear-gradient(135deg, #ff6b35 0%, #ff4d00 100%);
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 34px;
+  min-width: 72px;
+  text-align: center;
+  border-radius: 17px;
+  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.25);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  padding: 0 14px;
+}
+
+.voucher-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.35);
+}
+
+.voucher-btn:active {
+  transform: translateY(0);
+}
+
+/* 秒杀盒子 */
+.seckill-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 12px;
+  gap: 6px;
+}
+
+.seckill-box div {
+  font-size: 12px;
+}
+
+/* 禁用按钮 */
+.disable-btn {
+  background: linear-gradient(135deg, #d9d9d9 0%, #bfbfbf 100%);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.disable-btn:hover {
+  transform: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* 秒杀时间 */
+.seckill-time {
+  color: #ff4d4f;
+  font-weight: 500;
+  font-size: 11px;
+}
+
+/* 秒杀库存 */
+.seckill-stock {
+  color: #999;
+  font-size: 11px;
+}
+
+.seckill-stock span {
+  background: #fff0f0;
+  color: #ff4d4f;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+/* 评论区头部 */
+.comments-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 10px;
+}
+
+.comments-head span {
+  font-size: 12px;
+  font-weight: 400;
+  color: #999;
+}
+
+/* 评论标签容器 */
+.comment-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0;
+}
+
+/* 评论标签 */
+.comment-tags div {
+  border: 1px solid #d9d9d9;
+  background: #fafafa;
+  border-radius: 12px;
+  text-align: center;
+  color: #666;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 400;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.comment-tags div:hover {
+  background: #f0f0f0;
+  border-color: #bfbfbf;
+  color: #333;
+}
+
+/* 评论列表 */
+.comment-list {
+  margin-top: 20px;
+}
+
+/* 评论盒子 */
+.comment-box {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f5f5f5;
+  width: 100%; /* 确保不超出父容器 */
+}
+
+.comment-box:last-of-type {
+  border-bottom: none;
+}
+
+/* 评论头像区域 */
+.comment-icon {
+  flex-shrink: 0;
+  width: 42px; /* 固定宽度 */
+}
+
+/* 评论头像 */
+.comment-icon img {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid #f0f0f0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+/* 评论信息区域 */
+.comment-info {
+  flex: 1;
+  min-width: 0; /* 关键：允许flex item收缩，防止内容溢出 */
+  overflow: hidden; /* 隐藏溢出内容 */
+}
+
+/* 评论用户名 */
+.comment-user {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap; /* 允许换行 */
+}
+
+/* 用户等级标签 */
+.comment-user span {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #ffd666 0%, #ffc53d 100%);
+  color: #8c5400;
+  font-weight: 600;
+  margin-left: 6px;
+  box-shadow: 0 1px 4px rgba(255, 214, 102, 0.3);
+  white-space: nowrap; /* 防止等级标签换行 */
+}
+
+/* 评论评分区域 */
+.comment-rate {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0;
+  font-size: 13px;
+  color: #666;
+}
+
+/* 评论文字内容 */
+.comment-text {
+  padding: 8px 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  word-wrap: break-word; /* 允许长单词换行 */
+  word-break: break-word; /* 在单词内换行 */
+  overflow-wrap: break-word; /* 确保文字换行 */
+  white-space: normal; /* 允许正常换行 */
+}
+
+/* 评论图片容器 */
+.comment-images {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 12px 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.comment-images::-webkit-scrollbar {
+  height: 6px;
+}
+
+.comment-images::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.comment-images::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+/* 评论图片 */
+.comment-images img {
+  height: 90px;
+  width: 90px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid #f0f0f0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  transition: transform 0.3s ease;
+}
+
+.comment-images img:hover {
+  transform: scale(1.03);
+}
+
+/* 评论统计信息 */
+.comment-stats {
+  display: flex;
+  gap: 16px;
+  padding-top: 8px;
+  font-size: 12px;
+  color: #999;
+}
+
+.comment-stats span {
+  display: inline-block;
+}
+
+/* 查看更多评论 */
+.comment-view-more {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 0;
+  border-top: 1px solid #f5f5f5;
+  margin-top: 10px;
+  color: #666;
+  font-size: 14px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.comment-view-more:hover {
+  color: #1890ff;
+}
+
+.comment-view-more i {
+  color: #999;
+}
+
+/* 底部版权信息 */
+.copyright {
+  color: rgba(0, 0, 0, 0.45);
+  margin: 30px auto 40px auto;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 400;
+  max-width: 680px;
+  padding: 0 20px;
+}
+
+/* Element UI 组件覆盖 - 评分组件 */
+.el-rate {
+  height: auto;
+}
+
+.el-rate__icon {
+  font-size: 16px;
+}
+
+/* Element UI 按钮覆盖 */
+.el-button {
+  border-radius: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.el-button:hover {
+  transform: translateY(-2px);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .header {
+    width: 95%;
+    padding: 12px 16px;
+  }
+
+  .shop-info-box,
+  .shop-voucher,
+  .shop-comments {
+    width: 95%;
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .shop-title {
+    font-size: 20px;
+  }
+
+  .comment-tags div {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+
+  .ai-launcher {
+    right: 12px;
+    bottom: 60px;
+  }
+
+  .ai-launcher-button {
+    width: 50px;
+    height: 50px;
+  }
+
+  .ai-launcher-button svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  body::before,
+  body::after {
+    opacity: 0.2;
+    filter: blur(120px);
+  }
+}

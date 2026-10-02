@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"
+    />
+    <title>邻里智营--魔改点评</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="./css/element.css" />
+
+    <link href="./css/shop-list.css" rel="stylesheet" />
+    <link href="./css/main.css" rel="stylesheet" />
+    <link href="./css/glass.css" rel="stylesheet" />
+    <link href="./css/ai-assistant.css" rel="stylesheet" />
+
+    <style type="text/css"></style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="header">
+        <div class="header-back-btn" @click="goBack">
+          <i class="el-icon-arrow-left"></i>
+        </div>
+        <div class="header-title">{{typeName}}</div>
+        <div class="header-search">
+          <i class="el-icon-search"></i>
+        </div>
+      </div>
+      <div class="sort-bar">
+        <div class="sort-item">
+          <el-dropdown trigger="click" @command="handleCommand">
+            <span class="el-dropdown-link">
+              {{typeName}}<i class="el-icon-arrow-down el-icon--right"></i>
+            </span>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item v-for="t in types" :key="t.id" :command="t">
+                {{t.name}}
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </div>
+        <div class="sort-item" @click="sortAndQuery('')">
+          距离 <i class="el-icon-arrow-down el-icon--right"></i>
+        </div>
+        <div class="sort-item" @click="sortAndQuery('comments')">
+          人气 <i class="el-icon-arrow-down el-icon--right"></i>
+        </div>
+        <div class="sort-item" @click="sortAndQuery('score')">
+          评分 <i class="el-icon-arrow-down el-icon--right"></i>
+        </div>
+      </div>
+      <div class="shop-list" @scroll="onScroll">
+        <div
+          class="shop-box"
+          v-for="s in shops"
+          :key="s.id"
+          @click="toDetail(s.id)"
+        >
+          <div class="shop-img"><img :src="s.images" alt="" /></div>
+          <div class="shop-info">
+            <div class="shop-title shop-item">{{s.name}}</div>
+            <div class="shop-rate shop-item">
+              <el-rate
+                disabled
+                v-model="s.score/10"
+                text-color="#F63"
+                show-score
+              ></el-rate>
+              <span>{{s.comments}}条</span>
+            </div>
+            <div class="shop-area shop-item">
+              <span>{{s.area}}</span>
+              <span v-if="s.distance"
+                >{{s.distance < 1000 ? s.distance.toFixed(1) + 'm' :
+                (s.distance/1000).toFixed(1) + 'km'}}</span
+              >
+            </div>
+            <div class="shop-avg shop-item">￥{{s.avgPrice}}/人</div>
+            <div class="shop-address shop-item">
+              <i class="el-icon-map-location"></i>
+              <span>{{s.address}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ai-launcher">
+      <a
+        class="ai-launcher-button"
+        href="./aiassistant.html"
+        title="打开AI顾问"
+      >
+        <svg viewBox="0 0 48 48" aria-hidden="true">
+          <defs>
+            <linearGradient
+              id="ai-icon-gradient"
+              x1="0%"
+              y1="0%"
+              x2="100%"
+              y2="100%"
+            >
+              <stop offset="0%" stop-color="#60a5fa"></stop>
+              <stop offset="100%" stop-color="#a855f7"></stop>
+            </linearGradient>
+          </defs>
+          <circle cx="24" cy="24" r="18" fill="rgba(255,255,255,0.22)"></circle>
+          <path
+            d="M17 18c0-3.314 2.686-6 6-6h2c3.314 0 6 2.686 6 6 0 1.824-.82 3.453-2.108 4.551-.26.221-.26.675 0 .896C29.18 24.545 30 26.175 30 28c0 3.314-2.686 6-6 6h-2c-3.314 0-6-2.686-6-6 0-1.825.82-3.455 2.108-4.553.26-.221.26-.675 0-.896C17.82 21.454 17 19.824 17 18Z"
+            stroke="url(#ai-icon-gradient)"
+            stroke-width="2.6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            fill="none"
+          ></path>
+          <circle
+            cx="20"
+            cy="18"
+            r="1.8"
+            fill="url(#ai-icon-gradient)"
+          ></circle>
+          <circle
+            cx="28"
+            cy="18"
+            r="1.8"
+            fill="url(#ai-icon-gradient)"
+          ></circle>
+          <path
+            d="M20 28h8"
+            stroke="url(#ai-icon-gradient)"
+            stroke-width="2.6"
+            stroke-linecap="round"
+          ></path>
+        </svg>
+      </a>
+    </div>
+    <script src="./js/vue.js"></script>
+    <script src="./js/axios.min.js"></script>
+    <!-- 引入组件库 -->
+    <script src="./js/element.js"></script>
+    <script src="./js/common.js"></script>
+    <script>
+      const app = new Vue({
+        el: "#app",
+        data: {
+          util,
+          isReachBottom: false,
+          types: [], // 类型列表
+          shops: [], // 商店列表
+          typeName: "",
+          params: {
+            typeId: 0,
+            current: 1,
+            sortBy: "",
+            x: 120.149993, // 经度
+            y: 30.334229, // 纬度
+          },
+        },
+        created() {
+          // 获取参数
+          this.params.typeId = util.getUrlParam("type");
+          this.typeName = util.getUrlParam("name");
+          // 查询类型
+          this.queryTypes();
+          // 查询商店
+          this.queryShops();
+        },
+        methods: {
+          queryTypes() {
+            axios
+              .get("/shop-type/list")
+              .then(({ data }) => {
+                this.types = data;
+              })
+              .catch((err) => {
+                console.log(err);
+                this.$message.error(err);
+              });
+          },
+          queryShops() {
+            axios
+              .get("/shop/of/type", {
+                params: this.params,
+              })
+              .then(({ data }) => {
+                if (!data) {
+                  return;
+                }
+                data.forEach((s) => (s.images = s.images.split(",")[0]));
+                this.shops = this.shops.concat(data);
+              })
+              .catch((err) => {
+                console.log(err);
+                this.$message.error(err);
+              });
+          },
+          handleCommand(t) {
+            location.href = "/shop-list.html?type=" + t.id + "&name=" + t.name;
+          },
+          sortAndQuery(sortBy) {
+            this.params.sortBy = sortBy;
+            this.queryShops();
+          },
+          goBack() {
+            history.back();
+          },
+          toDetail(id) {
+            location.href = "/shop-detail.html?id=" + id;
+          },
+          onScroll(e) {
+            let scrollTop = e.target.scrollTop;
+            let offsetHeight = e.target.offsetHeight;
+            let scrollHeight = e.target.scrollHeight;
+            if (
+              scrollTop + offsetHeight + 1 > scrollHeight &&
+              !this.isReachBottom
+            ) {
+              this.isReachBottom = true;
+              console.log("触底");
+              this.params.current++;
+              this.queryShops(this.params.current, 5);
+            } else {
+              this.isReachBottom = false;
+            }
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

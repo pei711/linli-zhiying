@@ -1,0 +1,5 @@
+.git
+.env
+**/target
+**/.idea
+AI-dianping-frontend/nginx.exe

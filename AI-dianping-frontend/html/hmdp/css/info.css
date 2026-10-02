@@ -1,0 +1,342 @@
+/* --- 头部区域改造 --- */
+.header {
+  /* 玻璃拟态化，移除旧边框 */
+  background: rgba(255, 255, 255, 0.2) !important;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--radius-lg);
+  height: auto;
+  padding: 8px 0;
+  line-height: normal;
+  border-bottom: none !important; /* 强制移除旧的橙色下边框 */
+  margin-bottom: 10px;
+}
+.header-title {
+  color: var(--text-strong);
+}
+.header-back-btn {
+  color: var(--accent-weak);
+}
+
+/* --- 用户基础信息卡片 --- */
+.basic {
+  height: auto;
+  background: rgba(255, 255, 255, 0.2) !important;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  padding: 15px;
+  align-items: center;
+}
+
+.basic-icon {
+  /* 移除白色背景和阴影，让头像直接浮在玻璃上 */
+  background-color: transparent;
+  box-shadow: none;
+  width: 64px;
+  height: 64px;
+}
+.basic-icon img {
+  border-radius: 50%;
+  width: 100%;
+  height: 100%;
+}
+
+.basic-info {
+  width: auto;
+  flex-grow: 1; /* 占据剩余空间 */
+  padding: 0 15px;
+}
+.basic-info .name {
+  font-weight: bold;
+  font-size: 16px;
+  color: var(--text-strong);
+}
+.basic-info span {
+  /* 柔和UI风格的标签 */
+  display: inline-block;
+  padding: 2px 8px;
+  background: rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin: 5px 0 10px;
+  border-radius: var(--radius-sm);
+  color: var(--text-weak);
+  font-size: 12px;
+}
+
+.edit-btn {
+  /* 柔和UI风格的按钮 */
+  width: auto;
+  padding: 4px 12px;
+  line-height: 20px;
+  border-radius: var(--radius-md);
+  text-align: center;
+  border: none;
+  color: var(--text-strong);
+  background: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.edit-btn:active {
+  transform: scale(0.98);
+}
+
+.logout-btn {
+  /* 改为柔和UI风格，像“杭州”按钮 */
+  width: auto;
+  height: auto;
+  padding: 4px 12px; /* 调整内边距使其更像标签 */
+  line-height: 1;
+  color: var(--text-strong) !important; /* 文字颜色改为强调色 */
+  border-radius: var(--radius-md); /* 圆角小一点 */
+  background: rgba(255, 255, 255, 0.4); /* 半透明背景 */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08); /* 柔和阴影 */
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2); /* 增加一个细微边框 */
+}
+.logout-btn:active {
+  transform: scale(0.98);
+}
+/* --- 个人简介区域 --- */
+.introduce {
+  padding: 10px 15px;
+  color: var(--text-weak);
+}
+
+/* --- 内容区域（Tabs）--- */
+.content {
+  height: 61%;
+  background: transparent !important; /* 继承#app的玻璃背景 */
+  box-shadow: none;
+  border: none;
+  border-radius: 0;
+}
+
+/* Tab 样式调整 */
+.el-tabs__header {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  margin: 0 0 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+.el-tabs__nav-wrap::after {
+  /* 隐藏tabs自带的下边框 */
+  display: none;
+}
+.el-tabs__item {
+  color: var(--text-weak);
+}
+.el-tabs__item.is-active {
+  color: var(--text-strong);
+}
+.el-tabs__active-bar {
+  background-color: var(--accent);
+}
+
+/* --- 笔记列表项 --- */
+.blog-item {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start !important;
+  padding: 10px;
+  height: auto;
+  width: 100%;
+  margin-bottom: 10px;
+  background: rgba(255, 255, 255, 0.25);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+  border-radius: var(--radius-lg);
+  box-sizing: border-box;
+}
+
+.blog-img {
+  width: 80px !important;
+  height: 200px;
+  margin-right: 12px;
+  flex-shrink: 0 !important; /* 防止图片被压缩 */
+  flex-grow: 0 !important;
+}
+.blog-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-md); /* 统一圆角 */
+}
+
+.blog-info {
+  flex: 1 !important; /* 占据剩余空间 */
+  width: auto !important; /* 明确设置为 auto，防止被覆盖 */
+  min-width: 0 !important; /* 防止 flex 子元素溢出 */
+  max-width: 100% !important;
+  color: var(--text-weak);
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center; /* 垂直居中内容 */
+  overflow: hidden; /* 防止内容溢出 */
+}
+.blog-title {
+  line-height: 1.4;
+  color: var(--text-strong);
+  margin-bottom: 8px;
+  width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+.blog-liked,
+.blog-comments {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  margin-right: 15px;
+}
+.blog-liked img {
+  width: 14px;
+  height: 14px;
+  margin-right: 4px;
+}
+.blog-comments i {
+  font-size: 14px;
+  margin-right: 4px;
+}
+
+/* --- 关注Tab里的卡片样式 (沿用首页风格) --- */
+.blog-list {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  overflow-y: auto;
+}
+.blog-box {
+  width: 95%; /* 调整宽度以适应内边距 */
+  background: rgba(255, 255, 255, 0.18) !important;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: var(--radius-lg) !important;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+  margin: 5px 0;
+  overflow: hidden;
+}
+.blog-img2 img {
+  width: 100%;
+  height: 200px;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0; /* 图片顶部圆角 */
+  /* 图片底部圆角 */
+  border-bottom-left-radius: var(--radius-lg);
+  border-bottom-right-radius: var(--radius-lg);
+  object-fit: cover;
+}
+.blog-foot {
+  display: flex;
+  align-items: center;
+  margin: 10px 0 5px 0;
+  padding: 0 10px;
+}
+.blog-user-icon {
+  width: 24px;
+  height: 24px;
+}
+.blog-user-icon img {
+  width: 100%;
+  border-radius: 50%;
+}
+.blog-user-name {
+  padding-left: 8px;
+  color: var(--text-weak);
+  font-size: 12px;
+}
+.blog-liked {
+  /* margin-left: auto; 推到最右边 */
+  /* 推到最左边 */
+  margin-right: auto;
+  color: var(--accent-weak);
+}
+/* 优化 Tab 内容区域的玻璃卡片效果 */
+.el-tabs__content {
+  background: rgba(255, 255, 255, 0.18); /* 半透明背景 */
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--radius-lg); /* 大圆角 */
+  padding: 15px; /* 内部留白 */
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+  margin-top: -10px; /* 稍微向上移动，与 Tab 头衔接 */
+  /* 如果内容高度不足，确保背景也能撑开 */
+  min-height: 200px; /* 根据实际内容调整，确保有足够的高度展示玻璃背景 */
+}
+/* --- 头部区域改造 (居中标题) --- */
+.header {
+  /* ...保留之前的玻璃拟态样式... */
+  background: rgba(255, 255, 255, 0.2) !important;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--radius-lg);
+  height: auto;
+  padding: 12px 0; /* 稍微增加一点上下内边距 */
+  line-height: normal;
+  border-bottom: none !important;
+  margin-bottom: 10px;
+  position: relative; /* 【新增】为了让标题绝对定位居中 */
+  justify-content: space-between; /* 【新增】确保返回按钮在左边 */
+}
+.header-title {
+  /* 【修改】实现真正的居中 */
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: auto; /* 移除固定宽度 */
+  color: var(--text-strong);
+  font-weight: 600; /* 【新增】让标题更醒目 */
+  font-size: 18px;
+}
+
+/* --- 用户基础信息卡片 (调整内部布局) --- */
+.basic {
+  /* 【修改】改为flex垂直布局 */
+  height: auto;
+  background: rgba(255, 255, 255, 0.2) !important;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  padding: 15px;
+  display: flex;
+  flex-direction: column; /* 【新增】改为垂直排列 */
+  gap: 15px; /* 【新增】为简介和上方信息添加间距 */
+}
+
+/* 【新增】顶部信息行的样式 */
+.basic-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.basic-info {
+  flex-grow: 1; /* 【新增】让中间部分自适应宽度 */
+  padding: 0 15px;
+}
+
+/* --- 个人简介区域 (放入卡片后的样式) --- */
+.introduce {
+  /* 【修改】调整放入卡片后的样式 */
+  padding: 15px 5px 5px; /* 上方加一点内边距和下边距 */
+  color: var(--text-weak);
+  border-top: 1px solid rgba(255, 255, 255, 0.2); /* 【新增】增加一条优雅的分割线 */
+  margin: 0; /* 移除外边距 */
+  width: 100%;
+  box-sizing: border-box;
+}

@@ -1,0 +1,441 @@
+/*
+ * --- 全局滚动问题修复 ---
+ * 这里的目标是：禁止最外层的 body 滚动，
+ * 而是让我们指定的 #app 容器来负责内容的滚动。
+ */
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  background: #f1f3f8;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+#app {
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-top: 72px;
+  padding-bottom: 32px;
+  box-sizing: border-box;
+}
+
+.page-wrapper {
+  width: min(450px, 90vw);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-bottom: 24px;
+}
+
+/*
+ * --- 玻璃拟态导航栏 (参照主页风格) ---
+ */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  padding: 0 20px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 24px rgba(31, 38, 135, 0.12);
+  z-index: 99;
+}
+
+/* 头部按钮样式 */
+.header-cancel-btn,
+.header-commit-btn {
+  cursor: pointer; /* 鼠标悬停时显示手型光标 */
+  padding: 8px 16px; /* 内边距：上下8像素，左右16像素 */
+  border-radius: 20px; /* 圆角半径20像素，创造胶囊形状 */
+  font-size: 14px; /* 字体大小14像素 */
+  font-weight: 500; /* 字体粗细：中等粗 */
+  transition: all 0.3s ease; /* 所有属性的过渡动画，持续0.3秒，缓动效果 */
+}
+
+.header-cancel-btn {
+  color: #666; /* 文字颜色：深灰色 */
+  background: rgba(108, 117, 125, 0.1); /* 背景色：灰色透明度10% */
+}
+
+.header-cancel-btn:hover {
+  background: rgba(108, 117, 125, 0.2); /* 悬停时背景色：灰色透明度20% */
+  transform: translateY(-1px); /* 悬停时向上移动1像素 */
+}
+
+.header-commit-btn {
+  color: #fff; /* 文字颜色：白色 */
+  background: linear-gradient(
+    135deg,
+    #667eea 0%,
+    #764ba2 100%
+  ); /* 渐变背景：135度角，从蓝色到紫色 */
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); /* 阴影：水平0 垂直4 模糊15 蓝色透明度30% */
+}
+
+.header-commit-btn:hover {
+  transform: translateY(-2px); /* 悬停时向上移动2像素 */
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4); /* 悬停时阴影增强：垂直6 模糊20 透明度40% */
+}
+
+.header-title {
+  font-size: 18px; /* 字体大小18像素 */
+  font-weight: 600; /* 字体粗细：粗体 */
+  color: #333; /* 文字颜色：深灰色 */
+  display: flex; /* 弹性盒子布局 */
+  align-items: center; /* 垂直居中对齐子元素 */
+  gap: 5px; /* 子元素之间的间距5像素 */
+}
+
+/* --- 内容主体区域 ---
+ * 因为导航栏是 fixed 定位脱离了文档流，
+ * padding-top 已在 #app 中设置
+ */
+
+/* --- 参照主页的统一卡片样式 --- */
+.content-card {
+  border-radius: 20px; /* 圆角半径20像素，创造圆润的卡片效果 */
+  background: rgba(255, 255, 255, 0.9); /* 半透明白色背景，透明度90% */
+  backdrop-filter: blur(10px); /* 背景模糊效果10像素 */
+  -webkit-backdrop-filter: blur(10px); /* Safari浏览器兼容的背景模糊效果 */
+  border: 1px solid rgba(255, 255, 255, 0.2); /* 边框：1像素白色透明度20% */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); /* 阴影：水平0 垂直8 模糊32 黑色透明度10% */
+  overflow: hidden; /* 隐藏溢出内容，保持圆角效果 */
+  transition: all 0.3s ease; /* 所有属性的过渡动画，持续0.3秒 */
+  padding: 20px; /* 内边距20像素 */
+}
+
+.content-card:hover {
+  transform: translateY(-2px); /* 悬停时向上移动2像素 */
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15); /* 悬停时阴影增强：垂直12 模糊40 透明度15% */
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2d2f41;
+  margin-bottom: 6px;
+}
+
+.section-subtitle {
+  font-size: 13px;
+  color: #7a7e92;
+}
+
+.section-pill {
+  white-space: nowrap;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(102, 126, 234, 0.12);
+  color: #4f56c1;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* --- 上传照片区域样式 --- */
+.upload-box {
+  display: flex; /* 弹性盒子布局 */
+  flex-direction: column; /* 子元素垂直排列 */
+  gap: 15px; /* 子元素之间的间距15像素 */
+}
+
+.upload-btn {
+  display: flex; /* 弹性盒子布局 */
+  flex-direction: column; /* 子元素垂直排列 */
+  align-items: center; /* 水平居中对齐子元素 */
+  justify-content: center; /* 垂直居中对齐子元素 */
+  height: 120px; /* 高度120像素 */
+  border: 2px dashed rgba(102, 126, 234, 0.3); /* 虚线边框：2像素蓝色透明度30% */
+  border-radius: 15px; /* 圆角半径15像素 */
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.05) 0%,
+    rgba(118, 75, 162, 0.05) 100%
+  ); /* 渐变背景：135度角，从淡蓝色到淡紫色，透明度5% */
+  cursor: pointer; /* 鼠标悬停时显示手型光标 */
+  transition: all 0.3s ease; /* 所有属性的过渡动画，持续0.3秒 */
+  color: #667eea; /* 文字颜色：蓝色 */
+}
+
+.upload-tip {
+  font-size: 12px;
+  line-height: 12px;
+}
+
+.upload-btn:hover {
+  border-color: rgba(102, 126, 234, 0.6); /* 悬停时边框颜色：蓝色透明度60% */
+  background: linear-gradient(
+    135deg,
+    rgba(102, 126, 234, 0.1) 0%,
+    rgba(118, 75, 162, 0.1) 100%
+  ); /* 悬停时背景：渐变透明度增加到10% */
+  transform: translateY(-2px); /* 悬停时向上移动2像素 */
+}
+
+.upload-btn i {
+  font-size: 24px; /* 图标字体大小24像素 */
+  margin-bottom: 8px; /* 底部外边距8像素 */
+}
+
+.pic-list {
+  display: flex; /* 弹性盒子布局 */
+  flex-wrap: wrap; /* 允许子元素换行 */
+  gap: 10px; /* 子元素之间的间距10像素 */
+}
+
+.pic-box {
+  position: relative; /* 相对定位，为绝对定位的子元素提供定位上下文 */
+  width: 80px; /* 宽度80像素 */
+  height: 80px; /* 高度80像素 */
+  border-radius: 12px; /* 圆角半径12像素 */
+  overflow: hidden; /* 隐藏溢出内容，保持圆角效果 */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* 阴影：水平0 垂直4 模糊12 黑色透明度10% */
+}
+
+.pic-box img {
+  width: 100%; /* 图片宽度100%，填满容器 */
+  height: 100%; /* 图片高度100%，填满容器 */
+  object-fit: cover; /* 保持宽高比的情况下覆盖整个容器 */
+}
+
+.pic-box i {
+  position: absolute; /* 绝对定位，相对于pic-box定位 */
+  top: -5px; /* 距离顶部-5像素，超出容器边界 */
+  right: -5px; /* 距离右侧-5像素，超出容器边界 */
+  background: #ff4757; /* 背景色：红色 */
+  color: white; /* 文字颜色：白色 */
+  border-radius: 50%; /* 圆角半径50%，创造圆形效果 */
+  width: 20px; /* 宽度20像素 */
+  height: 20px; /* 高度20像素 */
+  display: flex; /* 弹性盒子布局 */
+  align-items: center; /* 垂直居中对齐内容 */
+  justify-content: center; /* 水平居中对齐内容 */
+  font-size: 12px; /* 字体大小12像素 */
+  cursor: pointer; /* 鼠标悬停时显示手型光标 */
+  box-shadow: 0 2px 8px rgba(255, 71, 87, 0.3); /* 阴影：水平0 垂直2 模糊8 红色透明度30% */
+}
+
+/* --- 标题输入框样式 --- */
+.blog-title {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.blog-title input {
+  width: 100%; /* 宽度100%，填满容器 */
+  border: none; /* 无边框 */
+  outline: none; /* 无焦点轮廓 */
+  background: transparent; /* 透明背景 */
+  font-size: 18px; /* 字体大小18像素 */
+  font-weight: 600; /* 字体粗细：粗体 */
+  color: #333; /* 文字颜色：深灰色 */
+  padding: 0; /* 内边距为0 */
+}
+
+.blog-title input::placeholder {
+  color: #999; /* 占位符文字颜色：浅灰色 */
+  font-weight: 400; /* 占位符字体粗细：正常 */
+}
+
+/* --- 内容输入框样式 --- */
+.blog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.blog-content textarea {
+  width: 100%; /* 宽度100%，填满容器 */
+  min-height: 150px; /* 最小高度150像素 */
+  border: none; /* 无边框 */
+  outline: none; /* 无焦点轮廓 */
+  background: transparent; /* 透明背景 */
+  font-size: 16px; /* 字体大小16像素 */
+  color: #333; /* 文字颜色：深灰色 */
+  resize: vertical; /* 只允许垂直方向调整大小 */
+  line-height: 1.6; /* 行高1.6倍字体大小 */
+  padding: 0; /* 内边距为0 */
+}
+
+.blog-content textarea::placeholder {
+  color: #999; /* 占位符文字颜色：浅灰色 */
+}
+
+/* --- 商户选择区域样式 --- */
+.blog-shop {
+  display: flex; /* 弹性盒子布局 */
+  justify-content: space-between; /* 子元素水平两端对齐 */
+  align-items: center; /* 垂直居中对齐子元素 */
+  cursor: pointer; /* 鼠标悬停时显示手型光标 */
+  transition: all 0.3s ease; /* 所有属性的过渡动画，持续0.3秒 */
+}
+
+.mask {
+  position: fixed; /* 固定定位，相对于视口定位 */
+  top: 0; /* 距离顶部0像素，覆盖整个视口 */
+  left: 0; /* 距离左侧0像素 */
+  right: 0; /* 距离右侧0像素 */
+  bottom: 0; /* 距离底部0像素 */
+  background: rgba(0, 0, 0, 0.5); /* 半透明黑色背景，透明度50% */
+  z-index: 1000; /* 层级1000，在普通元素之上 */
+  backdrop-filter: blur(5px); /* 背景模糊效果5像素 */
+  -webkit-backdrop-filter: blur(5px); /* Safari浏览器兼容的背景模糊效果 */
+}
+
+.shop-dialog {
+  position: fixed; /* 固定定位，相对于视口定位 */
+  bottom: 0; /* 距离底部0像素，从底部弹出 */
+  left: 0; /* 距离左侧0像素 */
+  right: 0; /* 距离右侧0像素 */
+  background: rgba(255, 255, 255, 0.95); /* 半透明白色背景，透明度95% */
+  backdrop-filter: blur(20px); /* 背景模糊效果20像素 */
+  -webkit-backdrop-filter: blur(20px); /* Safari浏览器兼容的背景模糊效果 */
+  border-top-left-radius: 25px; /* 左上圆角25像素 */
+  border-top-right-radius: 25px; /* 右上圆角25像素 */
+  z-index: 1001; /* 层级1001，在遮罩之上 */
+  max-height: 70vh; /* 最大高度70%视口高度 */
+  overflow-y: auto; /* 垂直方向自动显示滚动条 */
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.2); /* 阴影：水平0 垂直-8 模糊32 黑色透明度20% */
+}
+
+.shop-dialog .blog-shop {
+  padding: 20px 20px 10px 20px; /* 内边距：上20 右20 下10 左20像素 */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* 底部边框：1像素黑色透明度10% */
+  font-size: 18px; /* 字体大小18像素 */
+  font-weight: 600; /* 字体粗细：粗体 */
+  color: #333; /* 文字颜色：深灰色 */
+}
+
+.search-bar {
+  display: flex; /* 弹性盒子布局 */
+  gap: 10px; /* 子元素之间的间距10像素 */
+  padding: 15px 20px; /* 内边距：上下15像素，左右20像素 */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1); /* 底部边框：1像素黑色透明度10% */
+}
+
+.city-select {
+  background: linear-gradient(
+    135deg,
+    #667eea 0%,
+    #764ba2 100%
+  ); /* 渐变背景：135度角，从蓝色到紫色 */
+  color: white; /* 文字颜色：白色 */
+  padding: 10px 15px; /* 内边距：上下10像素，左右15像素 */
+  border-radius: 20px; /* 圆角半径20像素 */
+  font-size: 14px; /* 字体大小14像素 */
+  white-space: nowrap; /* 不换行，保持单行显示 */
+  display: flex; /* 弹性盒子布局 */
+  align-items: center; /* 垂直居中对齐子元素 */
+  gap: 5px; /* 子元素之间的间距5像素 */
+}
+
+.search-input {
+  flex: 1; /* 弹性增长因子1，占据剩余空间 */
+  display: flex; /* 弹性盒子布局 */
+  align-items: center; /* 垂直居中对齐子元素 */
+  background: rgba(246, 247, 249, 0.8); /* 半透明浅灰色背景，透明度80% */
+  border-radius: 20px; /* 圆角半径20像素 */
+  padding: 0 15px; /* 内边距：上下0，左右15像素 */
+  gap: 10px; /* 子元素之间的间距10像素 */
+}
+
+.search-input i {
+  color: #999; /* 图标颜色：浅灰色 */
+  cursor: pointer; /* 鼠标悬停时显示手型光标 */
+}
+
+.search-input input {
+  flex: 1; /* 弹性增长因子1，占据剩余空间 */
+  border: none; /* 无边框 */
+  outline: none; /* 无焦点轮廓 */
+  background: transparent; /* 透明背景 */
+  font-size: 14px; /* 字体大小14像素 */
+  color: #333; /* 文字颜色：深灰色 */
+  padding: 10px 0; /* 内边距：上下10像素，左右0 */
+}
+
+.search-input input::placeholder {
+  color: #999; /* 占位符文字颜色：浅灰色 */
+}
+
+.shop-list {
+  padding: 10px 0; /* 内边距：上下10像素，左右0 */
+}
+
+.shop-item {
+  padding: 15px 20px; /* 内边距：上下15像素，左右20像素 */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05); /* 底部边框：1像素黑色透明度5% */
+  cursor: pointer; /* 鼠标悬停时显示手型光标 */
+  transition: all 0.3s ease; /* 所有属性的过渡动画，持续0.3秒 */
+}
+
+.shop-item:hover {
+  background: rgba(102, 126, 234, 0.05); /* 悬停时背景色：蓝色透明度5% */
+}
+
+.shop-item:last-child {
+  border-bottom: none; /* 最后一个子元素无底部边框 */
+}
+
+.shop-name {
+  font-size: 16px; /* 字体大小16像素 */
+  font-weight: 500; /* 字体粗细：中等粗 */
+  color: #333; /* 文字颜色：深灰色 */
+  margin-bottom: 5px; /* 底部外边距5像素 */
+}
+
+.shop-item > div:last-child {
+  font-size: 14px; /* 字体大小14像素 */
+  color: #666; /* 文字颜色：中等灰色 */
+}
+
+@media (max-width: 480px) {
+  #app {
+    padding-top: 64px;
+  }
+
+  .page-wrapper {
+    width: 94vw;
+  }
+
+  .header {
+    padding: 0 16px;
+  }
+}
+
+/* --- 过渡动画 --- */
+.el-zoom-in-bottom-enter-active,
+.el-zoom-in-bottom-leave-active {
+  transition: all 0.3s ease; /* 进入和离开动画的过渡效果，持续0.3秒 */
+}
+
+.el-zoom-in-bottom-enter,
+.el-zoom-in-bottom-leave-to {
+  transform: translateY(100%); /* 进入前和离开后位置：向下移动100% */
+  opacity: 0; /* 进入前和离开后透明度：完全透明 */
+}
+
+/* --- 版权信息 --- */
+.copyright {
+  color: #d1d1d1; /* 文字颜色：浅灰色 */
+  margin: 20px 0; /* 外边距：上下20像素，左右0 */
+  text-shadow: 0 1px 1px #fff; /* 文字阴影：水平0 垂直1 模糊1 白色 */
+  text-align: center; /* 文字居中对齐 */
+}

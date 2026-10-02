@@ -1,0 +1,51 @@
+spring:
+  application:
+    name: hm-dianping
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3307/hmdp?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USERNAME:hmdp}
+    password: ${DB_PASSWORD:hmdp_dev_password}
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      lettuce:
+        pool:
+          max-active: 10
+          max-idle: 10
+          min-idle: 1
+          time-between-eviction-runs: 10s
+      database: 0
+  jackson:
+    default-property-inclusion: non_null # JSON处理时忽略非空字段
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 50MB
+      max-request-size: 60MB
+mybatis-plus:
+  type-aliases-package: com.hmdp.entity # 别名扫描包
+logging:
+  level:
+    com.hmdp: info
+server:
+  port: 8081
+app:
+  mcp:
+    api-token: ${MCP_API_TOKEN:}
+langchain4j:
+  open-ai:
+    chat-model:
+      base-url: ${AI_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode/v1}
+      api-key: ${AI_API_KEY:demo-key}
+      model-name: ${AI_MODEL_NAME:qwen-flash}
+      log-requests: false
+      log-responses: false
+    streaming-chat-model:
+      base-url: ${AI_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode/v1}
+      api-key: ${AI_API_KEY:demo-key}
+      model-name: ${AI_MODEL_NAME:qwen-flash}
+      log-requests: false
+      log-responses: false

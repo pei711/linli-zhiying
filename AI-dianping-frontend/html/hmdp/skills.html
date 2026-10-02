@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"
+    />
+    <title>邻里智营--魔改点评 - AI 技能中心</title>
+    <link rel="stylesheet" href="./css/element.css" />
+    <link rel="stylesheet" href="./css/main.css" />
+    <link rel="stylesheet" href="./css/skills.css?v=20260702" />
+  </head>
+  <body>
+    <div id="app" class="skill-shell">
+      <header class="skill-topbar">
+        <button class="icon-btn" @click="goBack" aria-label="返回">
+          <i class="el-icon-arrow-left"></i>
+        </button>
+        <div>
+          <div class="eyebrow">邻里智营</div>
+          <h1>AI技能中心</h1>
+        </div>
+        <button class="icon-btn" @click="queryRuns" aria-label="刷新记录">
+          <i class="el-icon-refresh"></i>
+        </button>
+      </header>
+
+      <main class="skill-main">
+        <section class="skill-rail">
+          <button
+            v-for="skill in skills"
+            :key="skill.code"
+            class="skill-card"
+            :class="{ active: selectedSkill && selectedSkill.code === skill.code }"
+            @click="selectSkill(skill)"
+          >
+            <span class="skill-scene">{{sceneLabel(skill.scene)}}</span>
+            <strong>{{skill.name}}</strong>
+            <small>{{skill.description}}</small>
+          </button>
+        </section>
+
+        <section class="skill-workbench" v-if="selectedSkill">
+          <div class="panel-head">
+            <div>
+              <span class="skill-scene">{{sceneLabel(selectedSkill.scene)}}</span>
+              <h2>{{selectedSkill.name}}</h2>
+            </div>
+            <button class="ghost-btn" @click="resetForm">
+              <i class="el-icon-delete"></i>
+              清空
+            </button>
+          </div>
+
+          <div class="dynamic-form">
+            <label
+              v-for="field in fields"
+              :key="field.key"
+              class="field-row"
+            >
+              <span>{{field.label}}</span>
+              <textarea
+                v-if="isLongField(field.key)"
+                v-model="form[field.key]"
+                :placeholder="field.label"
+                rows="3"
+              ></textarea>
+              <input
+                v-else
+                v-model="form[field.key]"
+                :placeholder="field.label"
+              />
+            </label>
+          </div>
+
+          <div class="action-row">
+            <button
+              class="run-btn"
+              :disabled="running"
+              @click="runSkill"
+            >
+              <i :class="running ? 'el-icon-loading' : 'el-icon-magic-stick'"></i>
+              {{running ? "生成中" : "生成"}}
+            </button>
+            <button class="ghost-btn" :disabled="!result" @click="copyResult">
+              <i class="el-icon-document-copy"></i>
+              复制
+            </button>
+          </div>
+
+          <pre class="result-box" v-if="result">{{result}}</pre>
+          <div class="empty-result" v-else>
+            <i class="el-icon-edit-outline"></i>
+          </div>
+        </section>
+      </main>
+
+      <section class="run-history">
+        <div class="panel-head compact">
+          <h2>最近记录</h2>
+          <span>{{runs.length}} 条</span>
+        </div>
+        <div class="history-list" v-if="runs.length">
+          <article class="history-item" v-for="run in runs" :key="run.id">
+            <div>
+              <strong>{{skillName(run.skillCode)}}</strong>
+              <span>{{run.createTime || ""}}</span>
+            </div>
+            <p>{{runPreview(run)}}</p>
+          </article>
+        </div>
+        <div class="history-empty" v-else>暂无记录</div>
+      </section>
+    </div>
+
+    <script src="./js/vue.js"></script>
+    <script src="./js/axios.min.js"></script>
+    <script src="./js/element.js"></script>
+    <script src="./js/common.js"></script>
+    <script>
+      new Vue({
+        el: "#app",
+        data: {
+          skills: [],
+          selectedSkill: null,
+          fields: [],
+          form: {},
+          result: "",
+          running: false,
+          runs: [],
+        },
+        created() {
+          this.querySkills();
+          this.queryRuns();
+        },
+        methods: {
+          querySkills() {
+            axios
+              .get("/ai/skills")
+              .then(({ data }) => {
+                const payload = this.unwrapApiData(data);
+                this.skills = Array.isArray(payload) ? payload : [];
+                if (this.skills.length) {
+                  this.selectSkill(this.skills[0]);
+                }
+              })
+              .catch((err) => this.$message.error(err.message || "技能列表加载失败"));
+          },
+          queryRuns() {
+            axios
+              .get("/ai/skills/runs")
+              .then(({ data }) => {
+                const payload = this.unwrapApiData(data);
+                this.runs = Array.isArray(payload) ? payload : [];
+              })
+              .catch(() => {
+                this.runs = [];
+              });
+          },
+          selectSkill(skill) {
+            this.selectedSkill = skill;
+            this.result = "";
+            this.fields = this.parseSchema(skill.inputSchema);
+            this.resetForm();
+          },
+          parseSchema(schema) {
+            try {
+              const parsed = JSON.parse(schema || "{}");
+              return Object.keys(parsed).map((key) => ({
+                key,
+                label: parsed[key] || key,
+              }));
+            } catch (e) {
+              return [];
+            }
+          },
+          resetForm() {
+            const next = {};
+            this.fields.forEach((field) => {
+              next[field.key] = this.defaultValue(field.key);
+            });
+            this.form = next;
+          },
+          defaultValue(key) {
+            const defaults = {
+              shopName: "103茶餐厅",
+              tone: "真实、有烟火气",
+              keywords: "招牌菜、环境、服务、人均",
+              attitude: "真诚、克制",
+              discount: "满100减30",
+              target: "周末聚餐用户",
+              duration: "30秒",
+              goal: "提升周末预约量",
+              budget: "300元",
+            };
+            return defaults[key] || "";
+          },
+          runSkill() {
+            if (!this.selectedSkill || this.running) {
+              return;
+            }
+            this.running = true;
+            this.result = "";
+            axios
+              .post(
+                "/ai/skills/" + this.selectedSkill.code + "/run",
+                { input: this.form },
+                { timeout: 30000 }
+              )
+              .then(({ data }) => {
+                const payload = this.unwrapApiData(data) || {};
+                this.result = payload.content || JSON.stringify(payload, null, 2);
+                this.queryRuns();
+              })
+              .catch((err) => this.$message.error(err.message || "技能执行失败"))
+              .finally(() => {
+                this.running = false;
+              });
+          },
+          unwrapApiData(payload) {
+            // common.js 已将 Result.data 解包到 axios 的返回对象中；
+            // 同时兼容直接访问后端时仍保留 Result 包装的情况。
+            if (payload && typeof payload.success === "boolean") {
+              if (!payload.success) {
+                throw new Error(payload.errorMsg || "请求失败");
+              }
+              return payload.data;
+            }
+            return payload;
+          },
+          copyResult() {
+            if (!this.result) {
+              return;
+            }
+            if (navigator.clipboard) {
+              navigator.clipboard.writeText(this.result);
+            }
+            this.$message.success("已复制");
+          },
+          sceneLabel(scene) {
+            if (scene === "consumer") return "用户";
+            if (scene === "admin") return "平台";
+            return "商家";
+          },
+          skillName(code) {
+            const skill = this.skills.find((item) => item.code === code);
+            return skill ? skill.name : code;
+          },
+          runPreview(run) {
+            try {
+              const output = JSON.parse(run.outputJson || "{}");
+              return output.content || run.outputJson || "";
+            } catch (e) {
+              return run.outputJson || "";
+            }
+          },
+          isLongField(key) {
+            return ["keywords", "review", "content"].includes(key);
+          },
+          goBack() {
+            if (window.history.length > 1) {
+              window.history.back();
+            } else {
+              location.href = "/";
+            }
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

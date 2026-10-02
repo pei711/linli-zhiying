@@ -1,0 +1,63 @@
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-hmdp_dev_password}
+      MYSQL_DATABASE: hmdp
+      MYSQL_USER: hmdp
+      MYSQL_PASSWORD: ${DB_PASSWORD:-hmdp_dev_password}
+      TZ: Asia/Shanghai
+    ports:
+      - "127.0.0.1:3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./db/mysql:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  redis:
+    image: redis:7.4-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    build: ./AI-dianping-backend
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/hmdp?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+      DB_USERNAME: hmdp
+      DB_PASSWORD: ${DB_PASSWORD:-hmdp_dev_password}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      AI_BASE_URL: ${AI_BASE_URL:-https://dashscope.aliyuncs.com/compatible-mode/v1}
+      AI_API_KEY: ${AI_API_KEY:-demo-key}
+      AI_MODEL_NAME: ${AI_MODEL_NAME:-qwen-flash}
+      MCP_API_TOKEN: ${MCP_API_TOKEN:-}
+      TZ: Asia/Shanghai
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  frontend:
+    image: nginx:1.27-alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./AI-dianping-frontend/html/hmdp:/usr/share/nginx/html:ro
+      - ./AI-dianping-frontend/conf/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
+  redis_data:

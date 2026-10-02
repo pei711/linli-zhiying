@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- 设置页面字符编码为UTF-8 -->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <!-- 移动端适配设置：设备宽度、初始缩放、最大缩放、禁止用户缩放 -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"
+    />
+    <!-- 页面标题 -->
+    <title>邻里智营--魔改点评</title>
+    <!-- 引入Element UI样式文件 -->
+    <link rel="stylesheet" href="./css/element.css" />
+
+    <!-- 引入商店详情页专用样式文件 -->
+    <link href="./css/shop-detail.css" rel="stylesheet" />
+    <!-- 引入主样式文件 -->
+    <link href="./css/main.css" rel="stylesheet" />
+    <!-- 引入玻璃效果样式文件 -->
+    <link href="./css/glass.css" rel="stylesheet" />
+    <link href="./css/ai-assistant.css" rel="stylesheet" />
+    
+    <!-- 覆盖glass.css的滚动限制 -->
+    <style type="text/css">
+      /* 强制覆盖glass.css的设置，允许#app内部滚动 */
+      #app {
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        height: 100vh !important;
+        -webkit-overflow-scrolling: touch;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Vue应用挂载容器 -->
+    <div id="app">
+      <!-- 页面头部区域 -->
+      <div class="header">
+        <!-- 返回按钮 -->
+        <div class="header-back-btn" @click="goBack">
+          <i class="el-icon-arrow-left"></i>
+        </div>
+        <!-- 页面标题区域 -->
+        <div class="header-title"></div>
+        <!-- 分享按钮区域 -->
+        <div class="header-share">...</div>
+      </div>
+
+      <!-- 商店信息卡片 -->
+      <div class="shop-info-box">
+        <!-- 商店名称 -->
+        <div class="shop-title">{{shop.name || '店铺名称'}}</div>
+
+        <!-- 商店评分区域 -->
+        <div class="shop-rate" v-if="shop.score">
+          <el-rate
+            disabled
+            :value="shop.score/10"
+            text-color="#F63"
+            show-score
+          ></el-rate>
+          <span>{{shop.comments || 0}}条</span>
+        </div>
+
+        <!-- 详细评分信息 -->
+        <div class="shop-rate-info">口味:4.9 环境:4.8 服务:4.7</div>
+
+        <!-- 商店排名区域 -->
+        <div class="shop-rank">
+          <img src="/imgs/bd.png" width="63" height="20" alt="" />
+          <span>拱墅区好评榜第3名</span>
+          <div><i class="el-icon-arrow-right"></i></div>
+        </div>
+
+        <!-- 商店图片展示区域 -->
+        <div class="shop-images" v-if="shop.images && shop.images.length > 0">
+          <div v-for="(s,i) in shop.images" :key="i">
+            <img :src="s" alt="" />
+          </div>
+        </div>
+
+        <!-- 商店地址信息 -->
+        <div class="shop-address" v-if="shop.address">
+          <div><i class="el-icon-map-location"></i></div>
+          <span>{{shop.address}}</span>
+        </div>
+
+        <!-- 商店服务标签区域 -->
+        <div class="shop-service">
+          <div style="color: #5a5b5b">|</div>
+          <div style="margin: 0 5px">
+            <img
+              src="https://p0.meituan.net/travelcube/bf684aa196c870810655e45b1e52ce843484.png@24w_16h_40q"
+              alt=""
+            />
+          </div>
+          <div>
+            <img
+              src="https://p0.meituan.net/travelcube/9277ace32123e0c9f59dedf4407892221566.png@24w_24h_40q"
+              alt=""
+            />
+          </div>
+        </div>
+
+        <!-- 营业时间信息 -->
+        <div class="shop-open-time" v-if="shop.openHours">
+          <span><i class="el-icon-watch"></i></span>
+          <div>营业时间</div>
+          <div>{{shop.openHours}}</div>
+          <span class="line-right"
+            >查看详情 <i class="el-icon-arrow-right"></i
+          ></span>
+        </div>
+      </div>
+
+      <!-- 代金券卡片 -->
+      <div class="shop-voucher">
+        <!-- 代金券标题区域 -->
+        <div class="voucher-header">
+          <span class="voucher-icon">券</span>
+          <span class="voucher-title-text">代金券</span>
+        </div>
+
+        <!-- 代金券列表 -->
+        <div
+          class="voucher-box"
+          v-for="v in vouchers"
+          :key="v.id"
+          v-if="!isEnd(v)"
+        >
+          <!-- 代金券左侧装饰圆点 -->
+          <div class="voucher-circle">
+            <div class="voucher-b"></div>
+            <div class="voucher-b"></div>
+            <div class="voucher-b"></div>
+          </div>
+
+          <!-- 代金券左侧信息区域 -->
+          <div class="voucher-left">
+            <div class="voucher-title">{{v.title}}</div>
+            <div class="voucher-subtitle">{{v.subTitle}}</div>
+            <div class="voucher-price">
+              <div>￥ {{util.formatPrice(v.payValue)}}</div>
+              <span>{{(v.payValue*10)/v.actualValue}}折</span>
+            </div>
+          </div>
+
+          <!-- 代金券右侧操作区域 -->
+          <div class="voucher-right">
+            <!-- 秒杀类型代金券 -->
+            <div v-if="v.type" class="seckill-box">
+              <div
+                class="voucher-btn"
+                :class="{'disable-btn': isNotBegin(v) || v.stock < 1}"
+                @click="seckill(v)"
+              >
+                限时抢购
+              </div>
+              <div class="seckill-stock">剩余 <span>{{v.stock}}</span> 张</div>
+              <div class="seckill-time">{{formatTime(v)}}</div>
+            </div>
+            <!-- 普通代金券 -->
+            <div class="voucher-btn" v-else>抢购</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 评论卡片 -->
+      <div class="shop-comments">
+        <!-- 评论区头部 -->
+        <div class="comments-head">
+          <div>网友评价 <span>（119）</span></div>
+          <div><i class="el-icon-arrow-right"></i></div>
+        </div>
+
+        <!-- 评论标签区域 -->
+        <div class="comment-tags">
+          <div class="tag">味道赞(19)</div>
+          <div class="tag">牛肉赞(16)</div>
+          <div class="tag">菜品不错(11)</div>
+          <div class="tag">回头客(4)</div>
+          <div class="tag">分量足(4)</div>
+          <div class="tag">停车方便(3)</div>
+          <div class="tag">海鲜棒(3)</div>
+          <div class="tag">饮品赞(3)</div>
+          <div class="tag">朋友聚餐(6)</div>
+        </div>
+
+        <!-- 评论列表 -->
+        <div class="comment-list">
+          <div class="comment-box" v-for="i in 3" :key="i">
+            <!-- 评论用户头像 -->
+            <div class="comment-icon">
+              <img
+                src="https://p0.meituan.net/userheadpicbackend/57e44d6eba01aad0d8d711788f30a126549507.jpg%4048w_48h_1e_1c_1l%7Cwatermark%3D0"
+                alt=""
+              />
+            </div>
+
+            <!-- 评论详细信息 -->
+            <div class="comment-info">
+              <div class="comment-user">叶小乙 <span>Lv5</span></div>
+
+              <!-- 用户评分 -->
+              <div class="comment-rate">
+                <span>打分</span>
+                <el-rate disabled v-model="4.5"></el-rate>
+              </div>
+
+              <!-- 评论文字内容 -->
+              <div class="comment-text">
+                某平台上买的券，价格可以当工作餐吃，虽然价格便宜，但是这家店一点都没有...
+              </div>
+
+              <!-- 评论配图 -->
+              <div class="comment-images">
+                <img
+                  src="https://qcloud.dpfile.com/pc/6T7MfXzx7USPIkSy7jzm40qZSmlHUF2jd-FZUL6WpjE9byagjLlrseWxnl1LcbuSGybIjx5eX6WNgCPvcASYAw.jpg"
+                  alt=""
+                />
+                <img
+                  src="https://qcloud.dpfile.com/pc/sZ5q-zgglv4VXEWU71xCFjnLM_jUHq-ylq0GKivtrz3JksWQ1f7oBWZsxm1DWgcaGybIjx5eX6WNgCPvcASYAw.jpg"
+                  alt=""
+                />
+                <img
+                  src="https://qcloud.dpfile.com/pc/xZy6W4NwuRFchlOi43DVLPFsx7KWWvPqifE1JTe_jreqdsBYA9CFkeSm2ZlF0OVmGybIjx5eX6WNgCPvcASYAw.jpg"
+                  alt=""
+                />
+                <img
+                  src="https://qcloud.dpfile.com/pc/xZy6W4NwuRFchlOi43DVLPFsx7KWWvPqifE1JTe_jreqdsBYA9CFkeSm2ZlF0OVmGybIjx5eX6WNgCPvcASYAw.jpg"
+                  alt=""
+                />
+              </div>
+
+              <!-- 浏览数和评论数 -->
+              <div class="comment-stats">
+                <span>浏览641</span>
+                <span>评论5</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 查看全部评论 -->
+          <div class="comment-view-more">
+            <div>查看全部119条评价</div>
+            <div><i class="el-icon-arrow-right"></i></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 页面底部版权信息 -->
+      <div class="copyright">copyright ©2021 hmdp.com</div>
+    </div>
+
+    <!-- 引入Vue.js框架 -->
+    <script src="./js/vue.js"></script>
+    <!-- 引入Axios HTTP请求库 -->
+    <script src="./js/axios.min.js"></script>
+    <!-- 引入Element UI组件库 -->
+    <script src="./js/element.js"></script>
+    <!-- 引入通用工具函数 -->
+    <script src="./js/common.js"></script>
+
+    <!-- Vue应用程序脚本 -->
+    <script>
+      // 创建Vue实例
+      const app = new Vue({
+        el: "#app",
+        data: {
+          util,
+          shop: {
+            name: '',
+            score: 0,
+            comments: 0,
+            images: [],
+            address: '',
+            openHours: ''
+          },
+          vouchers: [],
+        },
+        created() {
+          let shopId = util.getUrlParam("id");
+          this.queryShopById(shopId);
+          this.queryVoucher(shopId);
+        },
+        methods: {
+          goBack() {
+            history.back();
+          },
+
+          queryShopById(shopId) {
+            axios
+              .get("/shop/" + shopId)
+              .then(({ data }) => {
+                console.log("店铺ID:", shopId, "返回数据:", data);
+                
+                if (data.images) {
+                  data.images = data.images.split(",");
+                } else {
+                  console.warn("店铺ID:", shopId, "没有图片数据");
+                  data.images = [];
+                }
+                
+                data.name = data.name || '暂无店名';
+                data.score = data.score || 0;
+                data.comments = data.comments || 0;
+                data.address = data.address || '';
+                data.openHours = data.openHours || '';
+                
+                this.shop = data;
+                console.log("店铺数据已加载:", this.shop);
+              })
+              .catch((error) => {
+                console.error("加载店铺信息失败:", error);
+                this.$message.error("加载店铺信息失败，请稍后重试");
+              });
+          },
+
+          queryVoucher(shopId) {
+            axios
+              .get("/voucher/list/" + shopId)
+              .then(({ data }) => {
+                this.vouchers = data || [];
+              })
+              .catch((error) => {
+                console.error("加载代金券失败:", error);
+                this.vouchers = [];
+              });
+          },
+
+          formatTime(v) {
+            let b = new Date(v.beginTime);
+            let e = new Date(v.endTime);
+            return (
+              b.getMonth() +
+              1 +
+              "月" +
+              b.getDate() +
+              "日 " +
+              b.getHours() +
+              ":" +
+              this.formatMinutes(b.getMinutes()) +
+              " ~ " +
+              e.getHours() +
+              ":" +
+              this.formatMinutes(e.getMinutes())
+            );
+          },
+
+          formatMinutes(m) {
+            if (m < 10) m = "0" + m;
+            return m;
+          },
+
+          isNotBegin(v) {
+            return new Date(v.beginTime).getTime() > new Date().getTime();
+          },
+
+          isEnd(v) {
+            return new Date(v.endTime).getTime() < new Date().getTime();
+          },
+
+          seckill(v) {
+            if (!token) {
+              this.$message.error("请先登录");
+              setTimeout(() => {
+                location.href = "/login.html";
+              }, 200);
+              return;
+            }
+
+            if (this.isNotBegin(v)) {
+              this.$message.error("优惠券抢购尚未开始！");
+              return;
+            }
+
+            if (this.isEnd(v)) {
+              this.$message.error("优惠券抢购已经结束！");
+              return;
+            }
+
+            if (v.stock < 1) {
+              this.$message.error("库存不足，请刷新再试试！");
+              return;
+            }
+
+            let id = v.id;
+            axios
+              .post("/voucher-order/seckill/" + id)
+              .then(({ data }) => {
+                this.$message.success("抢购成功，订单id：" + data);
+              })
+              .catch(this.$message.error);
+          },
+        },
+      });
+    </script>
+
+    <!-- AI助手浮动按钮 -->
+    <div class="ai-launcher">
+      <a class="ai-launcher-button" href="./aiassistant.html" title="打开AI顾问">
+        <svg viewBox="0 0 48 48" aria-hidden="true">
+          <defs>
+            <linearGradient id="ai-icon-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#60a5fa"></stop>
+              <stop offset="100%" stop-color="#a855f7"></stop>
+            </linearGradient>
+          </defs>
+          <circle cx="24" cy="24" r="18" fill="rgba(255,255,255,0.22)"></circle>
+          <path
+            d="M17 18c0-3.314 2.686-6 6-6h2c3.314 0 6 2.686 6 6 0 1.824-.82 3.453-2.108 4.551-.26.221-.26.675 0 .896C29.18 24.545 30 26.175 30 28c0 3.314-2.686 6-6 6h-2c-3.314 0-6-2.686-6-6 0-1.825.82-3.455 2.108-4.553.26-.221.26-.675 0-.896C17.82 21.454 17 19.824 17 18Z"
+            stroke="url(#ai-icon-gradient)"
+            stroke-width="2.6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            fill="none"
+          ></path>
+          <circle cx="20" cy="18" r="1.8" fill="url(#ai-icon-gradient)"></circle>
+          <circle cx="28" cy="18" r="1.8" fill="url(#ai-icon-gradient)"></circle>
+          <path d="M20 28h8" stroke="url(#ai-icon-gradient)" stroke-width="2.6" stroke-linecap="round"></path>
+        </svg>
+      </a>
+    </div>
+  </body>
+</html>
