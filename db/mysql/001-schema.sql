@@ -2,6 +2,8 @@
 CREATE DATABASE IF NOT EXISTS hmdp CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE hmdp;
 
+SET NAMES utf8mb4;
+
 CREATE TABLE `tb_blog`  (
                             `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
                             `shop_id` bigint(20) NOT NULL COMMENT '商户id',
@@ -124,7 +126,11 @@ CREATE TABLE `tb_voucher`  (
                                `pay_value` bigint(10) UNSIGNED NOT NULL COMMENT '支付金额，单位是分。例如200代表2元',
                                `actual_value` bigint(10) NOT NULL COMMENT '抵扣金额，单位是分。例如200代表2元',
                                `type` tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT '0,普通券；1,秒杀券',
-                               `status` tinyint(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT '1,上架;
+                               `status` tinyint(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT '1,上架; 2,下架; 3,过期',
+                               `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                               `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+                               PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Compact;
 
 CREATE TABLE `tb_voucher_order`  (
                                      `id` bigint(20) NOT NULL COMMENT '主键',

@@ -58,7 +58,10 @@
           :key="s.id"
           @click="toDetail(s.id)"
         >
-          <div class="shop-img"><img :src="s.images" alt="" /></div>
+          <div class="shop-img">
+            <img v-if="s.images" :src="s.images" alt="" />
+            <div v-else class="shop-img-placeholder">邻里智营</div>
+          </div>
           <div class="shop-info">
             <div class="shop-title shop-item">{{s.name}}</div>
             <div class="shop-rate shop-item">
@@ -153,8 +156,8 @@
             typeId: 0,
             current: 1,
             sortBy: "",
-            x: 120.149993, // 经度
-            y: 30.334229, // 纬度
+            x: 118.0894, // 厦门演示店附近的经度
+            y: 24.4798, // 厦门演示店附近的纬度
           },
         },
         created() {

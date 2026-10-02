@@ -1,3 +1,5 @@
+SET NAMES utf8mb4;
+
 USE hmdp;
 
 INSERT INTO tb_shop_type (id, name, icon, sort) VALUES
