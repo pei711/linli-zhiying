@@ -1,6 +1,6 @@
-# Neighbor Smart Living — Modified Dianping
+# Neighbor Smart Living
 
-**邻里智营--魔改点评** is an AI-assisted local discovery and merchant operations demo built with Spring Boot and Vue 2. It combines a Dianping-style consumer experience with merchant-facing AI content tools and an optional, token-protected MCP interface.
+Neighbor Smart Living is an AI-assisted local discovery and merchant operations demo built with Spring Boot and Vue 2. It combines local shop discovery with merchant-facing AI content tools and an optional, token-protected MCP interface.
 
 [简体中文版](README.zh-CN.md)
 

@@ -1,4 +1,4 @@
--- Schema for Neighbor Smart Living -- Modified Dianping. Contains no imported personal records.
+-- Schema for Neighbor Smart Living. Contains no imported personal records.
 CREATE DATABASE IF NOT EXISTS hmdp CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE hmdp;
 
