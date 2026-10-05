@@ -30,6 +30,8 @@
         height: 100vh !important;
         -webkit-overflow-scrolling: touch;
       }
+      .shop-chat-entry { padding: 12px 18px; background: #fff; }
+      .shop-chat-button { width: 100%; border: 0; border-radius: 8px; padding: 12px; background: #19a974; color: #fff; font-size: 15px; cursor: pointer; }
     </style>
   </head>
   <body>
@@ -112,6 +114,10 @@
             >查看详情 <i class="el-icon-arrow-right"></i
           ></span>
         </div>
+      </div>
+
+      <div class="shop-chat-entry">
+        <button class="shop-chat-button" @click="contactMerchant">联系商家</button>
       </div>
 
       <!-- 代金券卡片 -->
@@ -287,6 +293,15 @@
         methods: {
           goBack() {
             history.back();
+          },
+
+          contactMerchant() {
+            if (!sessionStorage.getItem("token")) {
+              this.$message.error("请先登录后联系商家");
+              setTimeout(() => { location.href = "/login.html"; }, 200);
+              return;
+            }
+            location.href = "./chat.html?shopId=" + encodeURIComponent(util.getUrlParam("id"));
           },
 
           queryShopById(shopId) {

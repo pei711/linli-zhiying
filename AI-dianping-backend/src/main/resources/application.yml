@@ -20,6 +20,18 @@ spring:
       database: 0
   jackson:
     default-property-inclusion: non_null # JSON处理时忽略非空字段
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      retries: 3
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP:merchant-chat-persistence}
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
   servlet:
     multipart:
       enabled: true
@@ -35,17 +47,19 @@ server:
 app:
   mcp:
     api-token: ${MCP_API_TOKEN:}
+  chat:
+    topic: ${KAFKA_CHAT_TOPIC:merchant-chat-messages}
 langchain4j:
   open-ai:
     chat-model:
-      base-url: ${AI_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode/v1}
+      base-url: ${AI_BASE_URL:https://api.deepseek.com}
       api-key: ${AI_API_KEY:demo-key}
-      model-name: ${AI_MODEL_NAME:qwen-flash}
+      model-name: ${AI_MODEL_NAME:deepseek-v4-flash}
       log-requests: false
       log-responses: false
     streaming-chat-model:
-      base-url: ${AI_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode/v1}
+      base-url: ${AI_BASE_URL:https://api.deepseek.com}
       api-key: ${AI_API_KEY:demo-key}
-      model-name: ${AI_MODEL_NAME:qwen-flash}
+      model-name: ${AI_MODEL_NAME:deepseek-v4-flash}
       log-requests: false
       log-responses: false

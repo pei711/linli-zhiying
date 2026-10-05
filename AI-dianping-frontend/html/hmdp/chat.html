@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>联系商家 - 邻里智营</title>
+  <link rel="stylesheet" href="./css/main.css" />
+  <style>
+    body { margin: 0; background: #f5f6f8; color: #27313b; font-family: Arial, sans-serif; }
+    .chat-shell { max-width: 760px; margin: 28px auto; padding: 0 16px; }
+    .chat-card { background: #fff; border-radius: 14px; box-shadow: 0 8px 28px #172b4d12; overflow: hidden; }
+    .chat-head { padding: 18px 22px; border-bottom: 1px solid #edf0f2; display: flex; justify-content: space-between; align-items: center; }
+    .chat-head h1 { font-size: 20px; margin: 0; }
+    .chat-head select { max-width: 210px; padding: 7px; }
+    .chat-status { color: #7d8994; font-size: 13px; margin-top: 6px; }
+    .chat-messages { height: min(62vh, 560px); min-height: 300px; overflow-y: auto; padding: 18px; }
+    .chat-row { display: flex; margin: 10px 0; }
+    .chat-row.mine { justify-content: flex-end; }
+    .chat-bubble { max-width: 78%; padding: 10px 13px; background: #f0f2f4; border-radius: 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .chat-row.mine .chat-bubble { background: #dcf5df; }
+    .chat-meta { font-size: 11px; color: #87929d; margin-top: 5px; }
+    .chat-compose { display: flex; gap: 10px; padding: 14px; border-top: 1px solid #edf0f2; }
+    .chat-compose textarea { flex: 1; resize: vertical; min-height: 44px; max-height: 130px; padding: 10px; border: 1px solid #dce1e5; border-radius: 8px; font: inherit; }
+    .chat-compose button { border: 0; border-radius: 8px; padding: 0 20px; background: #19a974; color: white; font-size: 15px; cursor: pointer; }
+    .chat-compose button:disabled { opacity: .5; cursor: not-allowed; }
+    .chat-empty { color: #87929d; text-align: center; padding: 48px 10px; }
+    @media (max-width: 560px) { .chat-shell { margin: 0 auto; padding: 0; } .chat-card { border-radius: 0; min-height: 100vh; } .chat-messages { height: calc(100vh - 190px); } }
+  </style>
+</head>
+<body>
+  <main class="chat-shell">
+    <section class="chat-card">
+      <header class="chat-head">
+        <div>
+          <h1 id="chat-title">店铺沟通</h1>
+          <div class="chat-status" id="chat-status">正在连接…</div>
+        </div>
+        <select id="customer-picker" hidden aria-label="选择顾客"></select>
+      </header>
+      <div class="chat-messages" id="chat-messages"><div class="chat-empty">正在载入消息…</div></div>
+      <form class="chat-compose" id="chat-form">
+        <textarea id="chat-input" maxlength="2000" placeholder="输入消息…" required></textarea>
+        <button id="chat-send" type="submit" disabled>发送</button>
+      </form>
+    </section>
+  </main>
+  <script src="./js/axios.min.js"></script>
+  <script src="./js/common.js"></script>
+  <script src="./js/chat.js"></script>
+</body>
+</html>
