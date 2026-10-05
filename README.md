@@ -11,7 +11,7 @@
 - Create and review restaurant reservations while signed in.
 - Generate review summaries, reply drafts, blog drafts, coupon copy, and short-video scripts with configurable AI Skills.
 - Use the signed-in AI consultant, which can call the application's business tools. Actions such as reservation creation still run through the authenticated user flow.
-- Start real-time customer-to-shop conversations from a shop page. WebSocket receives messages; Kafka processes them asynchronously, then a consumer persists them in MySQL and pushes them to both participants.
+- Start real-time customer-to-shop conversations from a shop page. Kafka `push-topic` handles live delivery while `store-topic` persists messages asynchronously, decoupling delivery from storage.
 - Optionally expose read-only shop and voucher lookup tools over MCP. The MCP endpoint is disabled until `MCP_API_TOKEN` is set.
 
 ## Architecture
@@ -20,7 +20,8 @@
 Browser (Vue 2 + Element UI) -> Nginx -> Spring Boot REST API
                                              |-> MySQL 8
                                              |-> Redis 7 / Redisson
-                                             |-> Kafka (asynchronous chat messages)
+                                             |-> Kafka push-topic (real-time delivery)
+                                             |-> Kafka store-topic (asynchronous persistence)
                                              |-> WebSocket / STOMP (real-time delivery)
                                              |-> OpenAI-compatible chat API (optional)
                                              `-> MCP HTTP endpoint (optional, bearer token)
@@ -66,7 +67,7 @@ INSERT INTO tb_shop_owner (shop_id, user_id) VALUES (<shop_id>, <merchant_user_i
 ON DUPLICATE KEY UPDATE user_id = VALUES(user_id);
 ```
 
-Customers use “联系商家” on a shop detail page. The mapped shop owner can open `chat.html?shopId=<shop_id>` to reply. The STOMP CONNECT frame carries the login token in the `authorization` native header. Messages are queued to Kafka, persisted by a consumer, then delivered to both participants; history is loaded from MySQL.
+Customers use “联系商家” on a shop detail page. The mapped shop owner can open `chat.html?shopId=<shop_id>` to reply. The STOMP CONNECT frame carries the login token in the `authorization` native header. A Kafka transaction writes each message to `push-topic` and `store-topic`; separate consumer groups handle WebSocket delivery and asynchronous MySQL persistence. The two Kafka writes are transactional, but Kafka and MySQL do not share a cross-system transaction.
 
 ## Tests
 
@@ -87,7 +88,8 @@ Tests are designed to run without a local MySQL or Redis service. The GitHub Act
 | `DB_USERNAME` / `DB_PASSWORD` | Database credentials | `hmdp` / development-only password |
 | `REDIS_HOST` / `REDIS_PORT` | Redis connection | `localhost:6379` outside Compose |
 | `KAFKA_BOOTSTRAP_SERVERS` | Kafka broker address | `kafka:19092` in Compose; `localhost:9092` for local runs |
-| `KAFKA_CHAT_TOPIC` | Instant-message topic | `merchant-chat-messages` |
+| `KAFKA_PUSH_TOPIC` | Real-time delivery topic | `push-topic` |
+| `KAFKA_STORE_TOPIC` | Asynchronous persistence topic | `store-topic` |
 | `AI_BASE_URL` | OpenAI-compatible API base URL | `https://api.deepseek.com` |
 | `AI_API_KEY` | DeepSeek API key | Placeholder in `.env.example`; replace it |
 | `AI_MODEL_NAME` | Chat model | `deepseek-v4-flash` |

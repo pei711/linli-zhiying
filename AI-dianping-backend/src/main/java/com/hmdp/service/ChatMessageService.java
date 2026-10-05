@@ -26,20 +26,23 @@ public class ChatMessageService {
     private final ShopOwnerMapper shopOwnerMapper;
     private final IShopService shopService;
     private final ObjectMapper objectMapper;
-    private final String topic;
+    private final String pushTopic;
+    private final String storeTopic;
 
     public ChatMessageService(KafkaTemplate<String, String> kafkaTemplate,
                               ChatMessageMapper messageMapper,
                               ShopOwnerMapper shopOwnerMapper,
                               IShopService shopService,
                               ObjectMapper objectMapper,
-                              @Value("${app.chat.topic}") String topic) {
+                              @Value("${app.chat.push-topic}") String pushTopic,
+                              @Value("${app.chat.store-topic}") String storeTopic) {
         this.kafkaTemplate = kafkaTemplate;
         this.messageMapper = messageMapper;
         this.shopOwnerMapper = shopOwnerMapper;
         this.shopService = shopService;
         this.objectMapper = objectMapper;
-        this.topic = topic;
+        this.pushTopic = pushTopic;
+        this.storeTopic = storeTopic;
     }
 
     public ChatMessageEvent enqueue(Long actorId, ChatSendRequest request) {
@@ -79,7 +82,19 @@ public class ChatMessageService {
         event.setCreateTime(LocalDateTime.now());
         String key = request.getShopId() + ":" + customerId;
         try {
-            kafkaTemplate.send(topic, key, objectMapper.writeValueAsString(event)).get(5, TimeUnit.SECONDS);
+            String payload = objectMapper.writeValueAsString(event);
+            kafkaTemplate.executeInTransaction(operations -> {
+                try {
+                    operations.send(pushTopic, key, payload).get(5, TimeUnit.SECONDS);
+                    operations.send(storeTopic, key, payload).get(5, TimeUnit.SECONDS);
+                } catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                    throw new IllegalStateException("Interrupted while publishing chat message", interrupted);
+                } catch (Exception sendFailure) {
+                    throw new IllegalStateException("Failed to publish chat message", sendFailure);
+                }
+                return null;
+            });
             return event;
         } catch (Exception e) {
             log.error("Failed to enqueue merchant chat message, messageId={}", event.getMessageId(), e);

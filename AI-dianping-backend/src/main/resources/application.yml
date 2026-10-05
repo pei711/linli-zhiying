@@ -23,6 +23,7 @@ spring:
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     producer:
+      transaction-id-prefix: ${KAFKA_TRANSACTION_ID_PREFIX:merchant-chat-${random.uuid}-}
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
       acks: all
@@ -30,6 +31,7 @@ spring:
     consumer:
       group-id: ${KAFKA_CONSUMER_GROUP:merchant-chat-persistence}
       auto-offset-reset: earliest
+      isolation-level: read_committed
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
   servlet:
@@ -48,7 +50,10 @@ app:
   mcp:
     api-token: ${MCP_API_TOKEN:}
   chat:
-    topic: ${KAFKA_CHAT_TOPIC:merchant-chat-messages}
+    push-topic: ${KAFKA_PUSH_TOPIC:push-topic}
+    store-topic: ${KAFKA_STORE_TOPIC:store-topic}
+    push-group: ${KAFKA_PUSH_GROUP:merchant-chat-push}
+    store-group: ${KAFKA_STORE_GROUP:merchant-chat-store}
 langchain4j:
   open-ai:
     chat-model:

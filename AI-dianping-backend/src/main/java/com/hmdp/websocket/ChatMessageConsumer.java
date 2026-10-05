@@ -24,8 +24,8 @@ public class ChatMessageConsumer {
     private final SimpMessagingTemplate messagingTemplate;
     private final ObjectMapper objectMapper;
 
-    @KafkaListener(topics = "${app.chat.topic}")
-    public void persistAndPush(String payload) throws Exception {
+    @KafkaListener(topics = "${app.chat.store-topic}", groupId = "${app.chat.store-group}")
+    public void persist(String payload) throws Exception {
         ChatMessageEvent event = objectMapper.readValue(payload, ChatMessageEvent.class);
         ChatMessage message = new ChatMessage();
         message.setMessageId(event.getMessageId());
@@ -39,15 +39,18 @@ public class ChatMessageConsumer {
             messageMapper.insert(message);
         } catch (DuplicateKeyException duplicateDelivery) {
             log.info("Ignoring duplicate chat event, messageId={}", event.getMessageId());
-            return;
         }
+    }
 
+    @KafkaListener(topics = "${app.chat.push-topic}", groupId = "${app.chat.push-group}")
+    public void push(String payload) throws Exception {
+        ChatMessageEvent event = objectMapper.readValue(payload, ChatMessageEvent.class);
         Set<Long> recipients = new LinkedHashSet<>();
         recipients.add(event.getCustomerUserId());
         recipients.add(shopOwnerMapper.findOwnerId(event.getShopId()));
         recipients.remove(null);
         for (Long recipientId : recipients) {
-            messagingTemplate.convertAndSendToUser(recipientId.toString(), "/queue/chat", message);
+            messagingTemplate.convertAndSendToUser(recipientId.toString(), "/queue/chat", event);
         }
     }
 }
